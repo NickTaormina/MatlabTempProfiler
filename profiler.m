@@ -2,7 +2,7 @@ clc;
 clear;
 %matlab
 
-filename = 'coherent_tmp.profile'; % specify the filename here
+filename = '1_tmp.profile'; % specify the filename here
 fid = fopen(filename);
 if fid == -1
     error('Cannot open file %s', filename);
@@ -49,10 +49,10 @@ y = data(:,4);
 screen_size = get(groot, 'ScreenSize');
 
 
-windowSizeX = screen_size(3)*.5
-windowSizeY = screen_size(4)*.5
-screenCenterX = screen_size(3)*.50 - windowSizeX/2
-screenCenterY = screen_size(4)*.50 - windowSizeY/2
+windowSizeX = screen_size(3)*.5;
+windowSizeY = screen_size(4)*.5;
+screenCenterX = screen_size(3)*.50 - windowSizeX/2;
+screenCenterY = screen_size(4)*.50 - windowSizeY/2;
 figure('Position', [screenCenterX screenCenterY windowSizeX windowSizeY]);
 scatter(x, y, 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
 hold on
@@ -69,6 +69,8 @@ ylabel('Temp (K)');
 title('Temp Profile');
 %prints the equation of the trendline
 text(0.05, 0.1, sprintf('y = %0.5f x + %0.5f', p(1), p(2)), 'Units', 'normalized');
+slope1 = p(1);
+y_int1 = p(2);
 %calculates r^2 value
 rsquare = @(y, yfit) 1 - sum((y - yfit).^2)/sum((y - mean(y)).^2);
 %prints the r^2 value
@@ -82,10 +84,49 @@ yfit = polyval(p, data(65:80,1));
 plot(data(65:80,1), yfit, 'b-');
 %prints the equation of the trendline
 text(0.6, 0.8, sprintf('y = %0.5f x + %0.5f', p(1), p(2)), 'Units', 'normalized');
+slope2 = p(1);
+yint2 = p(2);
 %calculates r^2 value
 rsquare2 = @(y, yfit) 1 - sum((y - yfit).^2)/sum((y - mean(y)).^2);
 %prints the r^2 value
 text(0.7, 0.7, sprintf('R^2 = %0.5f', rsquare2(data(65:80,4), yfit)), 'Units', 'normalized');
+
+%prompt user to input the point at which the temperature is to be calculated
+prompt = 'Enter the point at which the temperature is to be calculated (number): ';
+%point = inputdlg(prompt);
+point = input(prompt);
+%calculates the temperature at the point
+temp = slope1*point + y_int1
+temp2 = slope2*point + yint2
+%outputs the delta temperature between the two trendlines
+delta_temp = temp2 - temp
+
+prompt = 'Enter the evalue from fix heat: ';
+eValue = input(prompt);
+
+prompt = 'Enter the X size from log.lammps: ';
+xBox = input(prompt);
+
+prompt = 'Enter the Y size from log.lammps: ';
+yBox = input(prompt);
+
+evPerPs = 1.6E-7;
+%calculate the area from the box size
+area = xBox*yBox;
+
+%calculate q
+q = eValue/area
+%calculate the thermal resistance
+thermal_resistance = -delta_temp/(q*evPerPs)
+
+%prints the thermal resistance into a text file
+fileID = fopen('results.txt','w');
+fprintf(fileID, 'The thermal resistance is %4d\n', thermal_resistance);
+fprintf(fileID, 'The q is %4d\n', q);
+fclose(fileID);
+
+
+
 
 
 
