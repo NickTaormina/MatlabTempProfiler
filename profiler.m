@@ -26,6 +26,9 @@ numColumns=4;
 x_axis_col=1;
 y_axis_col=4;
 
+%heat transfer constants
+evPerPs = 1.6E-7;
+
 %------------------------------%
 %---------main code--------%
 %-------------------------------%
@@ -117,21 +120,19 @@ prompt = 'Enter the point at which the temperature is to be calculated (number):
 %point = inputdlg(prompt);
 point = input(prompt);
 %calculates the temperature at the point
-temp = slope1*point + y_int1
+temp1 = slope1*point + y_int1
 temp2 = slope2*point + yint2
 %outputs the delta temperature between the two trendlines
-delta_temp = temp2 - temp
+delta_temp = temp2 - temp1
 
+%gets relevant information from the user for transfer calcs
 prompt = 'Enter the evalue from fix heat: ';
 eValue = input(prompt);
-
 prompt = 'Enter the X size from log.lammps: ';
 xBox = input(prompt);
-
 prompt = 'Enter the Y size from log.lammps: ';
 yBox = input(prompt);
 
-evPerPs = 1.6E-7;
 %calculate the area from the box size
 area = xBox*yBox;
 
@@ -140,10 +141,18 @@ q = eValue/area
 %calculate the thermal resistance
 thermal_resistance = -delta_temp/(q*evPerPs)
 
-%prints the thermal resistance into a text file
+%prints the data into a text file
 fileID = fopen('results.txt','w');
-fprintf(fileID, 'The thermal resistance is %4d\n', thermal_resistance);
-fprintf(fileID, 'The q is %4d\n', q);
+fprintf(fileID, 'File name: %s\n', filename);
+fprintf(fileID, 'Temp 1: %4d\n', temp1);
+fprintf(fileID, 'Temp 2: %4d\n', temp2);
+fprintf(fileID, 'Delta T: %4d\n', delta_temp);
+fprintf(fileID, 'e: %4d\n', eValue);
+fprintf(fileID, 'X size: %4d\n', xBox);
+fprintf(fileID, 'Y Size: %4d\n', yBox);
+fprintf(fileID, 'Area: %4d\n', area);
+fprintf(fileID, 'Thermal Resistance: %4d\n', thermal_resistance);
+fprintf(fileID, 'q: %4d\n', q);
 fclose(fileID);
 
 
