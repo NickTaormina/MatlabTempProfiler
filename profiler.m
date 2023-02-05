@@ -5,6 +5,8 @@ clear;
 %----------------------------%
 %variables (adjust as needed)
 %----------------------------%
+% specify the filename here
+filename = '1_tmp.profile'; 
 %trendline selections
 profile1Min=25;
 profile1Max=40;
@@ -32,7 +34,7 @@ evPerPs = 1.6E-7;
 %------------------------------%
 %---------main code--------%
 %-------------------------------%
-filename = '1_tmp.profile'; % specify the filename here
+
 fid = fopen(filename);
 if fid == -1
     error('Cannot open file %s', filename);
