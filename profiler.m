@@ -2,6 +2,33 @@ clc;
 clear;
 %matlab
 
+%----------------------------%
+%variables (adjust as needed)
+%----------------------------%
+%trendline selections
+profile1Min=25;
+profile1Max=40;
+profile2Min=65;
+profile2Max=80;
+
+
+%plot window
+screen_size = get(groot, 'ScreenSize');
+windowSizeX = screen_size(3)*.5;
+windowSizeY = screen_size(4)*.5;
+screenCenterX = screen_size(3)*.50 - windowSizeX/2;
+screenCenterY = screen_size(4)*.50 - windowSizeY/2;
+
+%data selection
+lines_to_read = 100;
+colsToReadInFile=6;
+numColumns=4;
+x_axis_col=1;
+y_axis_col=4;
+
+%------------------------------%
+%---------main code--------%
+%-------------------------------%
 filename = '1_tmp.profile'; % specify the filename here
 fid = fopen(filename);
 if fid == -1
@@ -18,7 +45,7 @@ end
 frewind(fid);
 
 % Read the last 100 lines
-lines_to_read = 100;
+
 start_line = max(1, total_lines - lines_to_read + 1);
 for i = 1:start_line-1
     fgets(fid);
@@ -35,7 +62,7 @@ fclose(fid);
 disp(last_100_lines);
 
 % Create a cell array to store the values
-data = cell(lines_to_read, 6);
+data = cell(lines_to_read, colsToReadInFile);
 
 %split each line of last_100_lines into a cell array of 4 columns
 for i = 1:lines_to_read
@@ -44,26 +71,20 @@ for i = 1:lines_to_read
 
 end
 data = cell2mat(cellfun(@str2num, data, 'UniformOutput', false));
-x = data(:,1);
-y = data(:,4);
-screen_size = get(groot, 'ScreenSize');
+x = data(:,x_axis_col);
+y = data(:,y_axis_col);
 
-
-windowSizeX = screen_size(3)*.5;
-windowSizeY = screen_size(4)*.5;
-screenCenterX = screen_size(3)*.50 - windowSizeX/2;
-screenCenterY = screen_size(4)*.50 - windowSizeY/2;
 figure('Position', [screenCenterX screenCenterY windowSizeX windowSizeY]);
 scatter(x, y, 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
 hold on
 
 
 %creates a scatter of lines 25-40 of data and shows trendline with equation and r^2 value
-scatter(data(25:40,1), data(25:40,4), 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
+scatter(x(profile1Min:profile1Max), y(profile1Min:profile1Max), 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
 hold on
-p = polyfit(data(25:40,1), data(25:40,4), 1);
-yfit = polyval(p, data(25:40,1));
-plot(data(25:40,1), yfit, 'b-');
+p = polyfit(x(profile1Min:profile1Max), y(profile1Min:profile1Max), 1);
+yfit = polyval(p, x(profile1Min:profile1Max));
+plot(x(profile1Min:profile1Max), yfit, 'b-');
 xlabel('Point');
 ylabel('Temp (K)');
 title('Temp Profile');
@@ -74,14 +95,14 @@ y_int1 = p(2);
 %calculates r^2 value
 rsquare = @(y, yfit) 1 - sum((y - yfit).^2)/sum((y - mean(y)).^2);
 %prints the r^2 value
-text(0.05, 0.2, sprintf('R^2 = %0.5f', rsquare(data(25:40,4), yfit)), 'Units', 'normalized');
+text(0.05, 0.2, sprintf('R^2 = %0.5f', rsquare(y(profile1Min:profile1Max), yfit)), 'Units', 'normalized');
 
 %creates a scatter of lines 65-80 of data and shows trendline with equation and r^2 value
-scatter(data(65:80,1), data(65:80,4), 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
+scatter(x(profile2Min:profile2Max), y(profile2Min:profile2Max), 'MarkerEdgeColor', 'red', 'Marker', 'o', 'SizeData', 5);
 hold on
-p = polyfit(data(65:80,1), data(65:80,4), 1);
-yfit = polyval(p, data(65:80,1));
-plot(data(65:80,1), yfit, 'b-');
+p = polyfit(x(profile2Min:profile2Max), y(profile2Min:profile2Max), 1);
+yfit = polyval(p, x(profile2Min:profile2Max));
+plot(x(profile2Min:profile2Max), yfit, 'b-');
 %prints the equation of the trendline
 text(0.6, 0.8, sprintf('y = %0.5f x + %0.5f', p(1), p(2)), 'Units', 'normalized');
 slope2 = p(1);
@@ -89,7 +110,7 @@ yint2 = p(2);
 %calculates r^2 value
 rsquare2 = @(y, yfit) 1 - sum((y - yfit).^2)/sum((y - mean(y)).^2);
 %prints the r^2 value
-text(0.7, 0.7, sprintf('R^2 = %0.5f', rsquare2(data(65:80,4), yfit)), 'Units', 'normalized');
+text(0.7, 0.7, sprintf('R^2 = %0.5f', rsquare2(y(profile2Min:profile2Max), yfit)), 'Units', 'normalized');
 
 %prompt user to input the point at which the temperature is to be calculated
 prompt = 'Enter the point at which the temperature is to be calculated (number): ';
