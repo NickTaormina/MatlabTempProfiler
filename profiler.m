@@ -6,7 +6,8 @@ clear;
 %variables (adjust as needed)
 %----------------------------%
 % specify the filename here
-filename = '1_tmp.profile'; 
+filename = 'misfit_17x34_v2'; 
+filetype = '.profile';
 %trendline selections
 profile1Min=25;
 profile1Max=40;
@@ -34,8 +35,8 @@ evPerPs = 1.6E-7;
 %------------------------------%
 %---------main code--------%
 %-------------------------------%
-
-fid = fopen(filename);
+fileopen = strcat(filename, filetype);
+fid = fopen(fileopen);
 if fid == -1
     error('Cannot open file %s', filename);
 end
@@ -144,7 +145,7 @@ q = eValue/area
 thermal_resistance = -delta_temp/(q*evPerPs)
 
 %prints the data into a text file
-fileID = fopen('results.txt','w');
+fileID = fopen(strcat(filename,'_RESULTS.txt'),'w');
 fprintf(fileID, 'File name: %s\n', filename);
 fprintf(fileID, 'Temp 1: %4d\n', temp1);
 fprintf(fileID, 'Temp 2: %4d\n', temp2);
@@ -156,14 +157,3 @@ fprintf(fileID, 'Area: %4d\n', area);
 fprintf(fileID, 'Thermal Resistance: %4d\n', thermal_resistance);
 fprintf(fileID, 'q: %4d\n', q);
 fclose(fileID);
-
-
-
-
-
-
-
-
-
-
-
